@@ -1,5 +1,5 @@
 diff --git a/accel/tcg/cpu-exec.c b/accel/tcg/cpu-exec.c
-index e5c0ccd..0cc3c53 100644
+index e5c0ccd..42d4600 100644
 --- a/accel/tcg/cpu-exec.c
 +++ b/accel/tcg/cpu-exec.c
 @@ -43,6 +43,8 @@
@@ -11,16 +11,15 @@ index e5c0ccd..0cc3c53 100644
  /* -icount align implementation. */
  
  typedef struct SyncClocks {
-@@ -202,6 +204,8 @@ static inline void log_cpu_exec(target_ulong pc, CPUState *cpu,
+@@ -200,6 +202,7 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, target_ulong pc,
+ static inline void log_cpu_exec(target_ulong pc, CPUState *cpu,
+                                 const TranslationBlock *tb)
  {
++    AFL_QEMU_CPU_SNIPPET2;
      if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_CPU | CPU_LOG_EXEC))
          && qemu_log_in_addr_range(pc)) {
-+       
-+        AFL_QEMU_CPU_SNIPPET2;
  
-         qemu_log_mask(CPU_LOG_EXEC,
-                       "Trace %d: %p [" TARGET_FMT_lx
-@@ -942,6 +946,9 @@ int cpu_exec(CPUState *cpu)
+@@ -942,6 +945,9 @@ int cpu_exec(CPUState *cpu)
              tb = tb_lookup(cpu, pc, cs_base, flags, cflags);
              if (tb == NULL) {
                  mmap_lock();
@@ -30,4 +29,3 @@ index e5c0ccd..0cc3c53 100644
                  tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);
                  mmap_unlock();
                  /*
-
